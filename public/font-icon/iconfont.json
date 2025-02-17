@@ -1,0 +1,65 @@
+{
+  "id": "4822393",
+  "name": "star-vault",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "7749520",
+      "name": "16gl-A",
+      "font_class": "16gl-A",
+      "unicode": "eb85",
+      "unicode_decimal": 60293
+    },
+    {
+      "icon_id": "7749535",
+      "name": "16gl-L",
+      "font_class": "16gl-L",
+      "unicode": "eb88",
+      "unicode_decimal": 60296
+    },
+    {
+      "icon_id": "7749543",
+      "name": "16gl-R",
+      "font_class": "16gl-R",
+      "unicode": "eb8a",
+      "unicode_decimal": 60298
+    },
+    {
+      "icon_id": "7749547",
+      "name": "16gl-T",
+      "font_class": "16gl-T",
+      "unicode": "eb8b",
+      "unicode_decimal": 60299
+    },
+    {
+      "icon_id": "7749548",
+      "name": "16gl-V",
+      "font_class": "16gl-V",
+      "unicode": "eb8c",
+      "unicode_decimal": 60300
+    },
+    {
+      "icon_id": "7749551",
+      "name": "16gl-U",
+      "font_class": "16gl-U",
+      "unicode": "eb8d",
+      "unicode_decimal": 60301
+    },
+    {
+      "icon_id": "7749555",
+      "name": "16gl-S",
+      "font_class": "16gl-S",
+      "unicode": "eb8e",
+      "unicode_decimal": 60302
+    },
+    {
+      "icon_id": "24731252",
+      "name": "16gl-T",
+      "font_class": "a-16gl-T",
+      "unicode": "e6ba",
+      "unicode_decimal": 59066
+    }
+  ]
+}
