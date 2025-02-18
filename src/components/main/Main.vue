@@ -3,48 +3,31 @@
     <el-aside style="width: 200px; border-right: 1px silver solid">
       <el-scrollbar>
         <el-menu :default-openeds="[]">
-          <el-sub-menu index="1">
+          <el-sub-menu index="1" @click="changeComponent('cloud')">
             <template #title>
-              <el-icon><messageBox /></el-icon><span @click="changeComponent('cloud')">云文件目录</span>
+              <el-icon><messageBox /></el-icon><span>云文件目录</span>
             </template>
-              <el-menu-item index="1-1">Option 1</el-menu-item>
-              <el-menu-item index="1-2">Option 2</el-menu-item>
-              <el-menu-item index="1-3">Option 3</el-menu-item>
+            <el-menu-item v-show="componentLabel === 'cloud'" @click="uploadFile">
+              <template #title>
+                <span>当前目录上传文件</span>
+              </template>
+            </el-menu-item>
+            <el-menu-item v-show="componentLabel === 'cloud'" @click="createDirectory()">
+              <template #title>
+                <span>当前目录添加文件夹</span>
+              </template>
+            </el-menu-item>
           </el-sub-menu>
-          <el-sub-menu index="2">
+          <el-menu-item index="2" @click="changeComponent('history')">
             <template #title>
-              <el-icon><icon-menu /></el-icon><span @click="changeComponent('history')">版本管理</span>
+              <el-icon><icon-menu /></el-icon><span>版本管理</span>
             </template>
-            <el-menu-item-group>
-              <template #title>Group 1</template>
-              <el-menu-item index="2-1">Option 1</el-menu-item>
-              <el-menu-item index="2-2">Option 2</el-menu-item>
-            </el-menu-item-group>
-            <el-menu-item-group title="Group 2">
-              <el-menu-item index="2-3">Option 3</el-menu-item>
-            </el-menu-item-group>
-            <el-sub-menu index="2-4">
-              <template #title>Option 4</template>
-              <el-menu-item index="2-4-1">Option 4-1</el-menu-item>
-            </el-sub-menu>
-          </el-sub-menu>
-          <el-sub-menu index="3">
+          </el-menu-item>
+          <el-menu-item index="3" @click="changeComponent('upAndDown')">
             <template #title>
-              <el-icon style="transform: rotate(-90deg)"><upAndDown /></el-icon><span @click="changeComponent('upAndDown')">上传\下载</span>
+              <el-icon style="transform: rotate(-90deg)"><upAndDown /></el-icon><span>上传\下载</span>
             </template>
-            <el-menu-item-group>
-              <template #title>Group 1</template>
-              <el-menu-item index="3-1">Option 1</el-menu-item>
-              <el-menu-item index="3-2">Option 2</el-menu-item>
-            </el-menu-item-group>
-            <el-menu-item-group title="Group 2">
-              <el-menu-item index="3-3">Option 3</el-menu-item>
-            </el-menu-item-group>
-            <el-sub-menu index="3-4">
-              <template #title>Option 4</template>
-              <el-menu-item index="3-4-1">Option 4-1</el-menu-item>
-            </el-sub-menu>
-          </el-sub-menu>
+          </el-menu-item>
         </el-menu>
       </el-scrollbar>
     </el-aside>
@@ -58,7 +41,7 @@
             </el-icon>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item>个人主页</el-dropdown-item>
+                <el-dropdown-item @click="router.push('/person')">个人主页</el-dropdown-item>
                 <el-dropdown-item @click="logOut">登出</el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -88,8 +71,16 @@ const mainComponent = ref(Directory)
 
 const username = ref(Cookies.get('username'))
 
+const componentLabel = ref('cloud')
+
+if(username.value === undefined)
+{
+  router.push('/account')
+}
+
 const changeComponent = (label) =>
 {
+  componentLabel.value = label
   if(label === 'cloud')
   {
     mainComponent.value = Directory
@@ -109,6 +100,16 @@ const logOut = () =>
   Cookies.remove('userId')
   Cookies.remove('username')
   router.push('/account')
+}
+
+const uploadFile = () =>
+{
+
+}
+
+const createDirectory = () =>
+{
+
 }
 
 </script>
