@@ -113,7 +113,7 @@ const submitForm = (formEl: FormInstance | undefined) =>
       axios.post('api/user/register', JSON.stringify(obj), {headers: {'Content-Type': 'application/json'}}).
       then(res =>
       {
-
+        alert(res.data.message)
       })
     }
     else

@@ -3,21 +3,11 @@
     <el-aside style="width: 200px; border-right: 1px silver solid">
       <el-scrollbar>
         <el-menu :default-openeds="[]">
-          <el-sub-menu index="1" @click="changeComponent('cloud')">
+          <el-menu-item index="1" @click="changeComponent('cloud')">
             <template #title>
               <el-icon><messageBox /></el-icon><span>云文件目录</span>
             </template>
-            <el-menu-item v-show="componentLabel === 'cloud'" @click="uploadFile">
-              <template #title>
-                <span>当前目录上传文件</span>
-              </template>
-            </el-menu-item>
-            <el-menu-item v-show="componentLabel === 'cloud'" @click="createDirectory()">
-              <template #title>
-                <span>当前目录添加文件夹</span>
-              </template>
-            </el-menu-item>
-          </el-sub-menu>
+          </el-menu-item>
           <el-menu-item index="2" @click="changeComponent('history')">
             <template #title>
               <el-icon><icon-menu /></el-icon><span>版本管理</span>
@@ -64,6 +54,7 @@ import router from "../../router.js";
 import Directory from "./Directory.vue";
 import History from "./History.vue";
 import Switch from "./Switch.vue";
+import Upload from "../file/Upload.vue";
 import Cookies from "js-cookie";
 import axios from "axios";
 
