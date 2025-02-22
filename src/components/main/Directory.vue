@@ -2,17 +2,18 @@
 import {reactive, ref} from 'vue'
 import axios from "axios";
 import Cookies from "js-cookie";
+import Upload from "../file/Upload.vue";
+import PrimaryDirectory from "../file/PrimaryDirectory.vue";
 
 const path = ref('总目录/')
 const search = ref('')
 const fileList = ref([])
 
-const addDirectoryToUI = () =>
+const ifShowPrimaryDirectory = ref(false)
+
+const shiftPrimaryDirectory = () =>
 {
-  fileList.value.push({
-    name: '新建文件夹',
-    type: '文件夹',
-  })
+  ifShowPrimaryDirectory.value = !ifShowPrimaryDirectory.value
 }
 
 const deleteDirectory = (event) =>
@@ -26,31 +27,43 @@ const renameDirectory = (event) =>
   event.target.parentNode.parentNode.parentNode.parentNode.querySelector('input').style.display = 'block'
 }
 
-const createDirectory = (directoryName) =>
+const createDirectory = (directory) =>
 {
+  postCreateDirectoryData(directory.name).then(res=>
+  {
+    console.log((res))
+    fileList.value.push(directory)
+    ifShowPrimaryDirectory.value = false
+  })
+}
 
+const postCreateDirectoryData = (directoryName) =>
+{
   const directoryData = reactive(
       {
         name:directoryName,
-        parentName: path.value.split('/')[-1],
+        parentName: path.value.toString().split('/')[path.value.toString().split('/').length-2],
         userId:Cookies.get('userId')
       }
   )
+  console.log()
+  console.log(directoryData)
 
-  axios.post('api/directory/create', JSON.stringify({directoryData}), {headers: {'Content-Type': 'application/json'}})
+  return axios.post('api/directory/create', JSON.stringify(directoryData), {headers: {'Content-Type': 'application/json'}})
 }
 
 </script>
 
 <template>
         <el-row style="padding: 10px; background:#b2e4ff">
-          <el-button type="primary" @click="addDirectoryToUI" plain>新建目录</el-button>
-          <el-button type="primary" plain>上传文件</el-button>
+          <el-button type="primary" @click="shiftPrimaryDirectory" plain>新建目录</el-button>
+          <Upload style="margin-left: 10px">上传文件</Upload>
         </el-row>
         <el-row>
           <span style="margin: 10px; font-size: 15px; color: #247983">当前路径: {{path}}</span>
         </el-row>
         <el-scrollbar>
+          <PrimaryDirectory v-if="ifShowPrimaryDirectory" @give-up="shiftPrimaryDirectory" @createDirectory="createDirectory"></PrimaryDirectory>
           <el-table empty-text="没有任何文件" :data="fileList.filter(data => data.name.includes(search))" style="width: 100%">
             <el-table-column prop="name" label="文件名" width="300"></el-table-column>
             <el-table-column prop="type" label="类型" width="100"></el-table-column>
