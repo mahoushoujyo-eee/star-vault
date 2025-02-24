@@ -10,6 +10,18 @@ const search = ref('')
 const fileList = ref([])
 
 const ifShowPrimaryDirectory = ref(false)
+const initialize = () =>
+{
+  initializeDirectory()
+}
+
+const initializeDirectory = () =>
+{
+  axios.get(`/api/directory/initialize/${Cookies.get('userId')}`).then(res=>
+  {
+    console.log(res.data.data)
+  })
+}
 
 const shiftPrimaryDirectory = () =>
 {
@@ -52,6 +64,7 @@ const postCreateDirectoryData = (directoryName) =>
   return axios.post('api/directory/create', JSON.stringify(directoryData), {headers: {'Content-Type': 'application/json'}})
 }
 
+window.onload = initialize()
 </script>
 
 <template>
