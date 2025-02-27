@@ -2,9 +2,12 @@
   <el-upload
       ref="upload"
       class="upload-demo"
-      action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+      :action="url"
       :limit="1"
       :on-exceed="handleExceed"
+      :data="extraData"
+      :before-upload="setFileName"
+      :on-success="submitUpload"
   >
     <template #trigger>
       <el-button type="primary"><slot></slot></el-button>
@@ -16,8 +19,24 @@
 import { ref } from 'vue'
 import { genFileId } from 'element-plus'
 import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus'
+import Cookies from "js-cookie";
 
 const upload = ref<UploadInstance>()
+
+const props = defineProps({
+  parentId:Number
+})
+
+const emit = defineEmits(['submit'])
+
+const url = ref(`api/file/upload`)
+const extraData = ref({
+  name: '',
+  userId: Cookies.get('userId'),
+  parentId:props.parentId
+})
+
+
 
 const handleExceed: UploadProps['onExceed'] = (files) => {
   upload.value!.clearFiles()
@@ -27,7 +46,13 @@ const handleExceed: UploadProps['onExceed'] = (files) => {
 }
 
 const submitUpload = () => {
-  upload.value!.submit()
+  emit('submit', extraData.value)
+}
+
+const setFileName = (file: UploadRawFile) => {
+  extraData.value.name = file.name
+  extraData.value.parentId = props.parentId
+  return true
 }
 </script>
 

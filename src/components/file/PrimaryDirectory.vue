@@ -1,27 +1,42 @@
 <script setup>
 import { ref, watch } from 'vue'
 const ifShow = ref(false)
-const emit = defineEmits(['giveUp', 'createDirectory'])
+const emit = defineEmits(['giveUp', 'createDirectory', 'renameDirectory'])
 const giveUp = () =>
 {
   emit('giveUp')
 }
 
+const props = defineProps(
+    {
+      type:String
+    })
+
 const fileName = ref('')
 
 const confirm = () =>
 {
-  if (fileName.value === '')
+  if(props.type === '')
+    return;
+
+  if(props.type === 'rename')
   {
-    alert('文件名不能为空')
-    return
+
   }
-  const data =
-      {
-        name: fileName.value,
-        type: '文件夹'
-      }
-  emit('createDirectory', data)
+  else if(props.type === 'create')
+  {
+    if (fileName.value === '')
+    {
+      alert('文件名不能为空')
+      return
+    }
+    const data =
+        {
+          name: fileName.value,
+          type: '文件夹'
+        }
+    emit('createDirectory', data)
+  }
 }
 
 </script>
