@@ -5,7 +5,6 @@ import Cookies from "js-cookie";
 import Upload from "../file/Upload.vue";
 import PrimaryDirectory from "../file/PrimaryDirectory.vue";
 
-//问题记录：parentName + userId 无法精准锁定对象，createDirectory需要重新设计
 const path = ref([])
 const parentId = ref(-1)
 const search = ref('')
@@ -40,7 +39,7 @@ const initializeDirectory = async () =>
   })
 }
 
-const submitUpload = (fileData) =>
+const submitUpload = () =>
 {
   initializeDirectory()
 }
@@ -51,22 +50,36 @@ const shiftPrimaryDirectory = () =>
   ifShowPrimaryDirectory.value = !ifShowPrimaryDirectory.value
 }
 
-const deleteDirectory = (data) =>
+const deleteDirectoryOrFile = (data) =>
 {
-  console.log(data)
-  axios.post(`/api/directory/delete`, {userId:Cookies.get('userId'), id:data.id, name:data.name}, {headers: {'Content-Type': 'application/json'}}).then(res=>
+  if(data.type === '文件夹')
   {
-    console.log(res)
-    if(res.status === 200)
+    axios.post(`/api/directory/delete`, {userId:Cookies.get('userId'), id:data.id, name:data.name}, {headers: {'Content-Type': 'application/json'}}).then(res=>
     {
-      fileList.value = fileList.value.filter(el=>el.id !== data.id)
-    }
-  })
+      console.log(res)
+      if(res.status === 200)
+      {
+        fileList.value = fileList.value.filter(el=>el.id !== data.id)
+      }
+    })
+  }
+  else if (data.type === '文件')
+  {
+    axios.post('api/file/delete', {userId:Cookies.get('userId'), id:data.id, name:data.name}, {headers: {'Content-Type': 'application/json'}}).then(res=>
+    {
+      console.log(res)
+      if(res.status === 200)
+      {
+        fileList.value = fileList.value.filter(el=>el.id !== data.id)
+      }
+    })
+  }
+
 }
 
-const renameDirectory = (data, event) =>
+const renameDirectory = (data) =>
 {
-  if(editId.value === data.id)
+  if(editId.value === data.id && data.type === '文件夹')
   {
     editId.value = null
     axios.post(`/api/directory/rename`, {userId:Cookies.get('userId'), id:data.id, name:data.name}, {headers: {'Content-Type': 'application/json'}}).then(res=>
@@ -106,13 +119,13 @@ const postCreateDirectoryData = (directoryName) =>
   const directoryData = reactive(
       {
         name:directoryName,
-        parentName: path.value[path.value.length-1],
+        parentId:parentId.value,
         userId:Cookies.get('userId')
       }
   )
-  console.log(directoryData)
+  console.log("directoryData:", directoryData)
 
-  return axios.post('api/directory/create', JSON.stringify(directoryData), {headers: {'Content-Type': 'application/json'}})
+  return axios.post('api/directory/create', directoryData, {headers: {'Content-Type': 'application/json'}})
 }
 
 const openForwardFile = (row) =>
@@ -124,7 +137,7 @@ const openForwardFile = (row) =>
     path.value.push({name:row.name, id:row.id})
     initializeDirectory()
   }
-  else
+  else if (row.type === '文件')
   {
     window.open(row.url)
   }
@@ -169,8 +182,12 @@ window.onload = initialize()
           <el-table @row-click.self="openForwardFile" empty-text="没有任何文件" :data="fileList.filter(data => data.name.includes(search))" style="width: 100%">
             <el-table-column prop="name" label="文件名" width="300">
               <template #default="scope">
-                <span :ref="scope.row.name" v-if="editId !== scope.row.id">{{scope.row.name}}</span>
-                <el-input @click.stop="" v-model="scope.row.name" v-else size="default" style="width: 250px" />
+                <img src="../../../public/image/directory.png" style="height: 30px; margin-bottom: -10px" v-if="scope.row.type === '文件夹'">
+                <img src="../../../public/image/file.png" style="height: 30px; margin-bottom: -10px" v-if="scope.row.type === '文件'">
+                <span :ref="scope.row.name" v-if="scope.row.type === '文件' || editId !== scope.row.id">
+                  {{scope.row.name}}
+                </span>
+                <el-input @click.stop="" v-model="scope.row.name" v-if="editId === scope.row.id && scope.row.type === '文件夹'" size="default" style="width: 200px" />
               </template>
             </el-table-column>
             <el-table-column prop="type" label="类型" width="100"></el-table-column>
@@ -179,8 +196,8 @@ window.onload = initialize()
                 <el-input v-model="search" size="big" style="width: 500px" placeholder="输入信息搜索文件名" />
               </template>
               <template #default="scope">
-                <el-button type="primary" @click.stop="deleteDirectory(scope.row)" plain>删除</el-button>
-                <el-button type="primary" v-if="scope.row.type === '文件夹'" @click.stop="renameDirectory(scope.row, $event)" :class="{isEditing:scope.row.id === editId}" plain>{{scope.row.id === editId ? '完成' :'重命名'}}</el-button>
+                <el-button type="primary" @click.stop="deleteDirectoryOrFile(scope.row)" plain>删除</el-button>
+                <el-button type="primary" v-if="scope.row.type === '文件夹'" @click.stop="renameDirectory(scope.row)" :class="{isEditing:scope.row.id === editId}" plain>{{scope.row.id === editId ? '完成' :'重命名'}}</el-button>
                 <el-button type="primary" v-if="scope.row.type === '文件'" class="isFile" plain>下载</el-button>
               </template>
             </el-table-column>
