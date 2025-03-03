@@ -11,6 +11,7 @@ const search = ref('')
 const fileList = ref([])
 const inputType = ref('')
 const editId = ref()
+const tableEmptyText = ref('数据加载中')
 
 const ifShowPrimaryDirectory = ref(false)
 const initialize = async () =>
@@ -31,12 +32,14 @@ const getRootDirectory = async () =>
 const initializeDirectory = async () =>
 {
   console.log('initialize')
+  tableEmptyText.value = '数据加载中'
   fileList.value = []
   const res = await axios.post(`/api/directory/initialize`, {userId:Cookies.get('userId'),parentId: parentId.value}, {headers: {'Content-Type': 'application/json'}})
   res.data.data.forEach(el=>
   {
       fileList.value.push({name:el.name, type:el.type, id:el.id, url:el.url})
   })
+  tableEmptyText.value = '暂无任何文件'
 }
 
 const submitUpload = () =>
@@ -179,7 +182,7 @@ window.onload = initialize()
         </el-row>
         <el-scrollbar>
           <PrimaryDirectory :type="inputType" v-if="ifShowPrimaryDirectory" @give-up="shiftPrimaryDirectory" @createDirectory="createDirectory"></PrimaryDirectory>
-          <el-table @row-click.self="openForwardFile" empty-text="没有任何文件" :data="fileList.filter(data => data.name.includes(search))" style="width: 100%">
+          <el-table @row-click.self="openForwardFile" :empty-text="tableEmptyText" :data="fileList.filter(data => data.name.includes(search))" style="width: 100%">
             <el-table-column prop="name" label="文件名" width="300">
               <template #default="scope">
                 <img src="../../../public/image/directory.png" style="height: 30px; margin-bottom: -10px" v-if="scope.row.type === '文件夹'">
