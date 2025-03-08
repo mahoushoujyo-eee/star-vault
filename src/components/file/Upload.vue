@@ -44,6 +44,7 @@ const handleExceed: UploadProps['onExceed'] = (files) =>
   const file = files[0] as UploadRawFile
   file.uid = genFileId()
   upload.value!.handleStart(file)
+  upload.value!.submit()
 }
 
 const submitUpload = () =>
@@ -131,6 +132,7 @@ const uploadFile = async (param) =>
       }
     })
   }
+
 
 }
 </script>

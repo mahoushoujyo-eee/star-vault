@@ -30,7 +30,7 @@ const changeComponent = (anotherComponent) =>
 
 <template>
 <div style="
-background-image: url('../../../public/image/background.jpg');
+background-image: url('/image/background.jpg');
 height: 98vh;
 background-attachment: fixed;
 background-size: cover;

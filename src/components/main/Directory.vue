@@ -55,9 +55,10 @@ const shiftPrimaryDirectory = () =>
 
 const deleteDirectoryOrFile = (data) =>
 {
+  console.log({id:data.id, userId:Cookies.get('userId'), name:data.name})
   if(data.type === '文件夹')
   {
-    axios.post(`/api/directory/delete`, {userId:Cookies.get('userId'), id:data.id, name:data.name}, {headers: {'Content-Type': 'application/json'}}).then(res=>
+    axios.post(`/api/directory/delete`, {id:data.id, userId:Cookies.get('userId'), name:data.name}, {headers: {'Content-Type': 'application/json'}}).then(res=>
     {
       console.log(res)
       if(res.status === 200)
@@ -131,18 +132,19 @@ const postCreateDirectoryData = (directoryName) =>
   return axios.post('api/directory/create', directoryData, {headers: {'Content-Type': 'application/json'}})
 }
 
-const openForwardFile = (row) =>
+const openForwardFile = async (row) =>
 {
   console.log(row)
   if (row.type === '文件夹')
   {
     parentId.value = row.id
     path.value.push({name:row.name, id:row.id})
-    initializeDirectory()
+    await initializeDirectory()
   }
   else if (row.type === '文件')
   {
-    window.open(row.url)
+    const res = await axios.post(`api/file/download`, {id:row.id, name:row.name, userId:Cookies.get('userId')})
+    window.open(res.data.data.url)
   }
 }
 
@@ -182,11 +184,11 @@ window.onload = initialize()
         </el-row>
         <el-scrollbar>
           <PrimaryDirectory :type="inputType" v-if="ifShowPrimaryDirectory" @give-up="shiftPrimaryDirectory" @createDirectory="createDirectory"></PrimaryDirectory>
-          <el-table @row-click.self="openForwardFile" :empty-text="tableEmptyText" :data="fileList.filter(data => data.name.includes(search))" style="width: 100%">
+          <el-table @row-click.self="openForwardFile" :empty-text="tableEmptyText" :data="fileList.filter(data => data.name.includes(search))" style="width: 100%" :show-overflow-tooltip="true">
             <el-table-column prop="name" label="文件名" width="300">
               <template #default="scope">
-                <img src="../../../public/image/directory.png" style="height: 30px; margin-bottom: -10px" v-if="scope.row.type === '文件夹'">
-                <img src="../../../public/image/file.png" style="height: 30px; margin-bottom: -10px" v-if="scope.row.type === '文件'">
+                <img src="/image/directory.png" style="height: 30px; margin-bottom: -10px" v-if="scope.row.type === '文件夹'">
+                <img src="/image/file.png" style="height: 30px; margin-bottom: -10px" v-if="scope.row.type === '文件'">
                 <span :ref="scope.row.name" v-if="scope.row.type === '文件' || editId !== scope.row.id">
                   {{scope.row.name}}
                 </span>
