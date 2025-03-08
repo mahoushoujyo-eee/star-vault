@@ -63,7 +63,10 @@ const deleteDirectoryOrFile = (data) =>
       console.log(res)
       if(res.status === 200)
       {
-        fileList.value = fileList.value.filter(el=>el.id !== data.id)
+        if(res.data.code === 0)
+          fileList.value = fileList.value.filter(el=>!(el.id === data.id && el.type === '文件夹'))
+        else
+          alert(res.data.message)
       }
     })
   }
@@ -74,7 +77,7 @@ const deleteDirectoryOrFile = (data) =>
       console.log(res)
       if(res.status === 200)
       {
-        fileList.value = fileList.value.filter(el=>el.id !== data.id)
+        fileList.value = fileList.value.filter(el=>!(el.id === data.id && el.type === '文件'))
       }
     })
   }
