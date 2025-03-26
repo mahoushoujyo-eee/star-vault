@@ -4,6 +4,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import Upload from "../file/Upload.vue";
 import PrimaryDirectory from "../file/PrimaryDirectory.vue";
+import {ElMessage, ElMessageBox} from 'element-plus'
 
 const path = ref([])
 const parentId = ref(-1)
@@ -56,32 +57,42 @@ const shiftPrimaryDirectory = () =>
 const deleteDirectoryOrFile = (data) =>
 {
   console.log({id:data.id, userId:Cookies.get('userId'), name:data.name})
-  if(data.type === '文件夹')
+  ElMessageBox.confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() =>
   {
-    axios.post(`/api/directory/delete`, {id:data.id, userId:Cookies.get('userId'), name:data.name}, {headers: {'Content-Type': 'application/json'}}).then(res=>
+    if(data.type === '文件夹')
     {
-      console.log(res)
-      if(res.status === 200)
+      axios.post(`/api/directory/delete`, {id:data.id, userId:Cookies.get('userId'), name:data.name}, {headers: {'Content-Type': 'application/json'}}).then(res=>
       {
-        if(res.data.code === 0)
-          fileList.value = fileList.value.filter(el=>!(el.id === data.id && el.type === '文件夹'))
-        else
-          alert(res.data.message)
-      }
-    })
-  }
-  else if (data.type === '文件')
-  {
-    axios.post('api/file/delete', {userId:Cookies.get('userId'), id:data.id, name:data.name}, {headers: {'Content-Type': 'application/json'}}).then(res=>
+        console.log(res)
+        if(res.status === 200)
+        {
+          if(res.data.code === 0)
+          {
+            fileList.value = fileList.value.filter(el => !(el.id === data.id && el.type === '文件夹'))
+            ElMessage.success({message: '删除成功', type: 'success'})
+          }
+          else
+            ElMessage.error({message: res.data.message, type: 'error'})
+        }
+      })
+    }
+    else if (data.type === '文件')
     {
-      console.log(res)
-      if(res.status === 200)
+      axios.post('api/file/delete', {userId:Cookies.get('userId'), id:data.id, name:data.name}, {headers: {'Content-Type': 'application/json'}}).then(res=>
       {
-        fileList.value = fileList.value.filter(el=>!(el.id === data.id && el.type === '文件'))
-      }
-    })
-  }
-
+        console.log(res)
+        if(res.status === 200)
+        {
+          fileList.value = fileList.value.filter(el=>!(el.id === data.id && el.type === '文件'))
+          ElMessage.success({message: '删除成功', type: 'success'})
+        }
+      })
+    }
+  }).catch(() =>{})
 }
 
 const renameDirectory = (data) =>
@@ -172,6 +183,13 @@ const openBackFile = (directory) =>
   initializeDirectory()
 }
 
+const shareFIle = async (row) =>
+{
+  const res = await axios.post(`api/file/download`, {id:row.id, name:row.name, userId:Cookies.get('userId')})
+  await navigator.clipboard.writeText(res.data.data.url)
+  ElMessage.success({message: '复制分享链接成功', type: 'success'})
+}
+
 window.onload = initialize()
 </script>
 
@@ -207,6 +225,7 @@ window.onload = initialize()
                 <el-button type="primary" @click.stop="deleteDirectoryOrFile(scope.row)" plain>删除</el-button>
                 <el-button type="primary" v-if="scope.row.type === '文件夹'" @click.stop="renameDirectory(scope.row)" :class="{isEditing:scope.row.id === editId}" plain>{{scope.row.id === editId ? '完成' :'重命名'}}</el-button>
                 <el-button type="primary" v-if="scope.row.type === '文件'" class="isFile" plain>下载</el-button>
+                <el-button type="primary" v-if="scope.row.type === '文件'" @click.stop="shareFIle(scope.row)" plain>分享</el-button>
               </template>
             </el-table-column>
           </el-table>
