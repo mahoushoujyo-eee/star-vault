@@ -51,7 +51,7 @@ background-repeat: no-repeat;
   <span style="display: flex; align-self: center; justify-self: center; margin-top: 20px">{{label}}</span>
   <component :is="component"
            @changeComponent="changeComponent"
-           style="display: flex; justify-self: center; flex-direction: column; margin-top: 20px; width: 400px;">
+           style="display: flex; justify-self: center; flex-direction: column; margin-top: 20px; width: 400px; background-color: rgba(177, 180, 182, 0.7); padding: 30px 30px 0 20px; border-radius: 10px">
   </component>
 </div>
 </template>
